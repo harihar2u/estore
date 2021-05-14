@@ -1,0 +1,35 @@
+spring:
+  data:
+    rest.base-path: /api
+  jpa:
+#      database: POSTGRESQL
+      database: H2
+      show-sql: true
+      hibernate.ddl-auto: none
+      hibernate.validationQuery: select 1
+      properties.hibernate.globally_quoted_identifiers: false
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+#    url: jdbc:postgresql://localhost:32080/postgres
+#    driver-class-name: org.postgresql.Driver
+#    username: postgres
+#    password: postgres
+
+  flyway:
+    locations: classpath:db/migration/h2
+#    locations: classpath:db/migration/postgresql
+
+
+h2.console.enabled: true
+
+server:
+  port: 8082
+  servlet:
+    context-path: /estore-ws
+
+springdoc.packages-to-scan: com.online.estore.api.controller
+
+

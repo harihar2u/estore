@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    initialization-mode: always
+      type: h2
+      url: jdbc:h2:~/test
+      driver-class-name: org.h2.Driver
+      username: sa
+      password:
+# ` jpa:
+#    database-platform:
+#      properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+#      hibernate.ddl-auto: update
+#      show-sql: true
+#      properties.hiber`nate.globally_quoted_identifiers: true
+  h2.console.enabled: true
+
+server:
+  port: 8082
+  servlet:
+    context-path: /estore-ws
+
+

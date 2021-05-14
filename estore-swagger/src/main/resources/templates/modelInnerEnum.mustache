@@ -1,0 +1,28 @@
+    public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} implements AbstractEnum {
+    {{#allowableValues}}
+      {{#enumVars}}
+        {{{name}}}{{^-last}},{{/-last}}{{#-last}},
+        INVALID_VALUE;{{/-last}}
+      {{/enumVars}}
+    {{/allowableValues}}
+
+        @Override
+        public boolean isValid() {
+            return !INVALID_VALUE.equals(this);
+        }
+
+        public static {{{datatypeWithEnum}}} getValueIgnoringCase(String value){
+            return Stream.of(values())
+                            .filter(x -> x.name().equalsIgnoreCase(value))
+                            .findFirst()
+                            .orElseGet(() -> {
+                                return INVALID_VALUE;
+                            });
+        }
+
+        @JsonCreator
+        public static {{{datatypeWithEnum}}} forValue(String value) {
+            return getValueIgnoringCase(value);
+        }
+
+    }

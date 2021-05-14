@@ -1,0 +1,13 @@
+ARG DOCKER_REGISTRY
+ARG ASPTSM_VERSION
+FROM ${DOCKER_REGISTRY}/a-sptsm/db_migration:${ASPTSM_VERSION}
+
+ADD libraryJars.tar.gz /home/java/dbunit/
+
+COPY entrypoint.sh /entrypoint.sh
+COPY runMigration.sh /runMigration.sh
+RUN chmod +x /entrypoint.sh
+RUN chmod +x /runMigration.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD [""]

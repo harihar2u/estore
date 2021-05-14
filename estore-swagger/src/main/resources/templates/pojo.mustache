@@ -1,0 +1,50 @@
+{{>pojoJavadoc}}
+@JsonIgnoreProperties(ignoreUnknown = true)
+{{>pojoValidation}}
+public class {{classname}}{{#parent}} extends {{{parent}}}{{/parent}} {{>pojoInterfaces}} {
+
+  {{#vars}}
+{{>fieldJavadoc}}
+    {{#items.isEnum}}
+      {{#items}}
+      {{^isContainer}}
+{{>modelInnerEnum}}
+      {{/isContainer}}
+      {{/items}}
+    {{/items.isEnum}}
+{{>fieldValidation}}
+{{>fieldValidationCore}}
+{{>fieldSerialization}}
+{{>fieldMasking}}
+{{>fieldEnumValidation}}
+{{>decimalsValidation}}
+    @JsonProperty("{{name}}")
+    private {{>fieldType}} {{name}};
+
+  {{/vars}}
+  {{#vars}}
+
+    @JsonProperty("{{name}}")
+    public {{>fieldType}} {{#isBoolean}}get{{/isBoolean}}{{getter}}() {
+        return {{name}};
+    }
+
+  {{^isReadOnly}}
+    @JsonProperty("{{name}}")
+    public void {{setter}}({{>fieldType}} {{name}}) {
+        this.{{name}} = {{name}};
+    }
+  {{/isReadOnly}}
+  {{/vars}}
+  {{#vars}}
+    {{#isEnum}}
+    {{^isContainer}}
+    {{#vendorExtensions.x-isInnerEnum}}
+
+
+{{>modelInnerEnum}}
+    {{/vendorExtensions.x-isInnerEnum}}
+    {{/isContainer}}
+    {{/isEnum}}
+  {{/vars}}
+}

@@ -1,0 +1,5 @@
+{
+  "modelPackage": "com.online.api",
+  "dateLibrary": "legacy",
+  "useBeanValidation": true
+}

@@ -1,0 +1,45 @@
+import java.util.stream.Stream;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.bellid.asptsm.paymentgateway.validator.AbstractEnum;
+
+public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} implements AbstractEnum{
+    {{#allowableValues}}
+    {{#enumVars}}
+    {{{name}}}({{{value}}}){{^-last}},{{/-last}}{{#-last}},
+    INVALID_VALUE("INVALID_VALUE");{{/-last}}
+    {{/enumVars}}
+    {{/allowableValues}}
+
+
+    private final {{{dataType}}} value;
+
+
+    private {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}}({{{dataType}}} value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public {{{dataType}}} getValue() {
+        return value;
+    }
+
+    @Override
+    public boolean isValid() {
+        return !INVALID_VALUE.equals(this);
+    }
+
+    public static {{{classname}}} getValueIgnoringCase(String value){
+        return Stream.of(values())
+                        .filter(x -> x.getValue().equalsIgnoreCase(value))
+                        .findFirst()
+                        .orElseGet(() -> {
+                            return INVALID_VALUE;
+                        });
+    }
+
+    @JsonCreator
+    public static {{{classname}}} forValue(String value) {
+        return getValueIgnoringCase(value);
+    }
+}

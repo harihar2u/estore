@@ -1,0 +1,36 @@
+ARG DOCKER_REGISTRY
+ARG JAVA_BASE_IMAGE_TAG
+ARG ASPTSM_VERSION
+FROM ${DOCKER_REGISTRY}/a-sptsm/db_migration:${ASPTSM_VERSION} as flyway
+FROM ${DOCKER_REGISTRY}/nr-dev/java:${JAVA_BASE_IMAGE_TAG} as java
+# build setup
+FROM ${DOCKER_REGISTRY}/nr-dev/postgres:9.6.10 as base
+ARG ASPTSM_VERSION
+# add java and flyway
+COPY --from=java /opt/sdk/java /opt/sdk/java
+COPY --from=flyway /flyway /flyway
+RUN chmod +x /flyway/flyway
+ADD 01-schemas.sql /docker-entrypoint-initdb.d/
+ADD 02-run-flyway.sh /docker-entrypoint-initdb.d/
+ADD 03-test-data.sh /docker-entrypoint-initdb.d/
+ADD setup.sh /
+ADD libraryJars.tar.gz /home/java/dbunit/
+RUN chmod 777 /home/java/dbunit/
+RUN chmod +x /setup.sh /docker-entrypoint-initdb.d/*.sh
+USER postgres
+RUN /setup.sh postgres
+USER root
+RUN rm /setup.sh /docker-entrypoint-initdb.d/*
+
+# final build
+FROM ${DOCKER_REGISTRY}/nr-dev/postgres:9.6.10
+COPY docker-healthcheck.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-healthcheck.sh
+HEALTHCHECK --interval=15s CMD ["docker-healthcheck.sh"]
+ADD postgresql.conf /etc/postgresql/postgresql.conf
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_DB=postgres
+ENV POSTGRES_PASSWORD=postgres
+COPY --from=base /var/lib/postgresql/data /var/lib/postgresql/data
+VOLUME /var/lib/postgresql/data
+

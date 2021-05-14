@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>estore-pom</artifactId>
+        <groupId>com.online</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>estore-database</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901.jdbc4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <!-- flyway migration plugins -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>5.2.4</version>
+                <executions>
+                    <execution>
+                        <id>validate-h2</id>
+                        <goals>
+                            <goal>info</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <locations>
+                                <location>classpath:db/migration/h2</location>
+                            </locations>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>validate-postgres</id>
+                        <goals>
+                            <goal>info</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <locations>
+                                <location>classpath:db/migration/postgresql</location>
+                            </locations>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <driver>org.h2.Driver</driver>
+                    <url>jdbc:h2:mem:testdb</url>
+                    <user>sa</user>
+                    <password></password>
+                    <baselineOnMigrate>true</baselineOnMigrate>
+                    <schemas>public</schemas>
+                </configuration>
+            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>com.spotify</groupId>-->
+<!--                <artifactId>dockerfile-maven-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <buildArgs>-->
+<!--                        <FLYWAY_VERSION>7.3.2</FLYWAY_VERSION>-->
+<!--                    </buildArgs>-->
+<!--                    <repository>${docker.registry}/estore/${project.artifactId}</repository>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+        </plugins>
+    </build>
+
+</project>

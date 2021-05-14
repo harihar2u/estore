@@ -1,0 +1,1984 @@
+swagger: '2.0'
+info:
+    description: Payment Gateway will be used as a gateway by merchants to perform payments and payment related functionality (e.g. 3D Secure). Payment Gateway can directly interface with acquirers (and in this scenario function as if it is a Payment Service Provider (PSP)).
+    version: '1.1.2'
+    title: Payment Gateway API
+    # x-THREEDS-ENDEAVOUR
+    # x-THREEDS-DIMEBOX
+    # x-PSP-BAMBORA
+    # x-PSP-SMARTPAY-BUREAU-CNP
+    # x-PSP-MADA
+basePath: /v1
+tags:
+-   name: Payment Gateway API
+    description: Payment Gateway Services
+schemes:
+- https
+paths:
+    /pay:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: M.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: M.
+        post:
+            x-PSP-BAMBORA: M.
+            x-PSP-MADA: M.
+            x-PSP-SMARTPAY-BUREAU-CNP: M.
+            tags:
+            - Pay
+            description: This message is used to perform a payment with or without 3DS.
+            operationId: payUsingPOST
+            consumes:
+            - application/json
+            produces:
+            - application/json
+            parameters:
+            -   in: body
+                name: Request
+                description: Pay Request
+                required: true
+                schema:
+                    $ref: '#/definitions/PaymentGatewayPayRequest'
+            responses:
+                200:
+                    description: OK
+                    schema:
+                        $ref: '#/definitions/PaymentGatewayPayResponse'
+                400:
+                    description: Bad request, see statusCode and statusMessage for details.
+                    schema:
+                        $ref: '#/definitions/Error400Response'
+                500:
+                    description: Server errors, see statusCode and statusMessage for details.
+                    schema:
+                        $ref: '#/definitions/Error500Response'
+    /refund:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: M.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: M.
+        post:
+            x-PSP-BAMBORA: M.
+            x-PSP-MADA: M.
+            x-PSP-SMARTPAY-BUREAU-CNP: M.
+            tags:
+            - Refund
+            description: This message is used to refund an earlier payment transaction.
+            operationId: refundUsingPOST
+            consumes:
+            - application/json
+            produces:
+            - application/json
+            parameters:
+            -   in: body
+                name: Request
+                description: Refund Request
+                required: true
+                schema:
+                    $ref: '#/definitions/PaymentGatewayRefundRequest'
+            responses:
+                200:
+                    description: OK
+                    schema:
+                        $ref: '#/definitions/PaymentGatewayRefundResponse'
+                400:
+                    description: Bad request, see statusCode and statusMessage for details.
+                    schema:
+                        $ref: '#/definitions/Error400Response'
+                500:
+                    description: Server errors, see statusCode and statusMessage for details.
+                    schema:
+                        $ref: '#/definitions/Error500Response'
+    /reversal:
+      x-THREEDS-ENDEAVOUR: NA.
+      x-THREEDS-DIMEBOX: NA.
+      x-PSP-BAMBORA: NA.
+      x-PSP-MADA: M.
+      x-PSP-SMARTPAY-BUREAU-CNP: NA.
+      post:
+        x-PSP-MADA: M.
+        tags:
+        - reversal
+        description: This message is used to cancel an earlier payment request.
+        operationId: reversalUsingPOST
+        consumes:
+        - application/json
+        produces:
+        - application/json
+        parameters:
+        -   in: body
+            name: Request
+            description: reversal Request
+            required: true
+            schema:
+              $ref: '#/definitions/PaymentGatewayReversalRequest'
+        responses:
+          200:
+            description: OK
+            schema:
+              $ref: '#/definitions/PaymentGatewayReversalResponse'
+          400:
+            description: Bad request, see statusCode and statusMessage for details.
+            schema:
+              $ref: '#/definitions/Error400Response'
+          500:
+            description: Server errors, see statusCode and statusMessage for details.
+            schema:
+              $ref: '#/definitions/Error500Response'
+    /report/transactions/csv:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: M.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        get:
+            x-PSP-BAMBORA: M.
+            tags:
+            - Transaction Report
+            description: This message is used to generate a transaction report.
+            operationId: transactionreportUsingGET
+            produces:
+            - text/csv
+            parameters:
+            -   name: start_timestamp
+                in: query
+                type: string
+                required: true
+                format: date-time
+                description: The beginning timestamp of receiving the payment request (the timestamp that PG receives the 1st message in the use cases). It is based on ISO 8601 string with GMT offset, Format 'yyyy-MM-ddTHH:mm:ss.SSSZ'.
+            -   name: end_timestamp
+                in: query
+                type: string
+                required: true
+                format: date-time
+                description: The ending timestamp of receiving the payment request (the timestamp that PG receives the 1st message in the use cases). It is based on ISO 8601 string with GMT offset, Format 'yyyy-MM-ddTHH:mm:ss.SSSZ'.
+            -   name: tokenrequestorId
+                in: query
+                description: Token Requestor ID and its length is 11 digits.
+                required: false
+                type: integer
+                format: int64
+            -   name: merchantId
+                in: query
+                type: string
+                required: false
+                description: Identifier of the merchant.
+            -   name: threeDSServiceProvider
+                in: query
+                type: string
+                enum: [3DS-Endeavour]
+                required: false
+                description: The name of the 3DS service provider.
+            -   name: paymentServiceProvider
+                in: query
+                type: string
+                enum: [PSP-Bambora]
+                required: false
+                description: The name of the payment service provider.
+            -   name: transactionStatus
+                in: query
+                type: string
+                enum: [SUCCESS,FAILED,PENDING,3DS_ABORTED]
+                required: false
+                description: The status of the payment transaction. If it is not present, all status of the transactions will be retrieved.
+            responses:
+                200:
+                    description: OK
+                    schema:
+                        type: string
+                400:
+                    description: Bad request, see statusCode and statusMessage for details.
+                    schema:
+                        $ref: '#/definitions/Error400Response'
+                500:
+                    description: Server errors, see statusCode and statusMessage for details.
+                    schema:
+                        $ref: '#/definitions/Error500Response'
+definitions:
+    PaymentGatewayPayRequest:
+        type: object
+        required:
+        - requestId
+        - authenticationType
+          #x-PSP-SMARTPAY-BUREAU-CNP:<authToken>calculated based on the spec</authToken>
+          #x-PSP-SMARTPAY-BUREAU-CNP:<enterpriseID>from smartPay</enterpriseID>
+          #x-PSP-SMARTPAY-BUREAU-CNP:<environment>ECommerce</environment>   hard coded value
+          #x-PSP-SMARTPAY-BUREAU-CNP:<version>20</version>  hard coded value
+          #x-PSP-SMARTPAY-BUREAU-CNP:<transactionTime>2019-10-14T12:46:36.124</transactionTime> (M, string, YYYY-mm-ddTHH:mm:ss.SSS  in UTC format) PG generates it based on current time
+          #x-PSP-SMARTPAY-BUREAU-CNP:<authenticate>false</authenticate>  hard coded value
+          #x-PSP-SMARTPAY-BUREAU-CNP:<storageIndicator>subsequent</storageIndicator> hard coded value
+          #x-PSP-SMARTPAY-BUREAU-CNP:<paymentMethod>Card</paymentMethod> hard coded value
+          #x-PSP-SMARTPAY-BUREAU-CNP:<cardholderAgreement>unscheduled</cardholderAgreement> hard coded value
+          #x-PSP-SMARTPAY-BUREAU-CNP:<schemeReferenceData>00000000003755712AB</schemeReferenceData> get it from previous transaction's response
+          #x-PSP-SMARTPAY-BUREAU-CNP:<validate>false</validate> hard coded value
+          #x-PSP-SMARTPAY-BUREAU-CNP: PG internally uses Current Unix epoch time in milliseconds as transNo and sends it to smartPay.   requesterDetails.transNo (Numeric string, M)
+          #for smartPay, PG internally generates <trxRef> and stores it in the field 'receipt", and send it to smartpay.
+        properties:
+            requestId:
+                description: Identifier of this request command. This identifier is also used in the response for this request message.
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: 'a18db4b1-2446-4f1d-9771-6cff1a1837e7'
+                x-internal-uniquess: true
+                x-THREEDS-ENDEAVOUR: M.  #trackid(Alpha Numeric, maxLength 50)
+            authenticationType:
+                description: It indicates the type of payment related authentication must be performed.
+                type: string
+                enum:
+                - NONE      # submit payment with payment data & merchant data
+                - THREEDSENROLL   # 3DS enrollment
+                - THREEDSENROLL_DEFERREDPAYMENT   # 3DS enrollment for deferred payment
+                - THREEDSAUTH     # 3DS authentication & submit payment with enrollmentID
+                - THREEDSAUTH_DEFERREDPAYMENT   # 3DS authentication without payment  with enrollmentID
+                - DEFERREDPAYMENT    # payment with enrollmentID
+                - ACCOUNTSTATUSVERIFICATION   # account check with amount =0
+                - DEBTRECOVERY
+                - NONE_TRANSIT
+                example: 'NONE'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: M- the valid values are 'NONE','THREEDSENROLL','THREEDSENROLL_DEFERREDPAYMENT','THREEDSAUTH','THREEDSAUTH_DEFERREDPAYMENT','DEFERREDPAYMENT'.
+                x-PSP-MADA: M- the valid values are 'ACCOUNTSTATUSVERIFICATION', 'NONE_TRANSIT' and 'DEBTRECOVERY'.
+                x-PSP-SMARTPAY-BUREAU-CNP: M- the valid value is 'NONE'. # webPaymentRequest.signableUnifiedRequestBase.authType = AuthAndSettle   (-> NONE)
+            enrollmentId:
+                description:  >
+                  Unique identifier (GUID format) that is used to provide a link between a 3DS enrollment request and its follow-up 3DS authentication request or deferred payment.
+                    It is required for following authenticationType -
+                     * `THREEDSAUTH`
+                     * `THREEDSAUTH_DEFERREDPAYMENT`
+                     * `DEFERREDPAYMENT`
+                     Otherwise, it is not applicable.
+                type: string
+                minLength: 1
+                maxLength: 36
+                example: '126cdf76-7393-48a9-80f0-5ed2e37bdfd2'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: M.
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            invoiceId:   #UPP - orderId
+                description:  >
+                  Reference Id for the transaction.
+                  It is required for following authenticationType -
+                    * `NONE`
+                    * `THREEDSENROLL`
+                    * `THREEDSENROLL_DEFERREDPAYMENT`
+                  Otherwise, it is not applicable.
+                type: string
+                minLength: 1
+                maxLength: 36
+                example: '...'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: M.  #enroll.description (String)
+                x-PSP-BAMBORA: M.    #transaction.CustRef (Alpha Numeric, maxLength 32, M)
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: M.    #webPaymentRequest.signableUnifiedRequestBase.merchantTransactionID (string) stored in smartPay DB and also returned in the response
+            traceData:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/TraceData'
+            terminalData:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/TerminalData'
+            transitData:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/TransitData'
+            paymentChannel:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: O.
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/PaymentChannel'
+            operatorId:
+                description: Identifier of the payment operator. It can be the wallet account Id or the payment platform user Id.
+                type: string
+                minLength: 1
+                maxLength: 150
+                example: '...'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: O.
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: M.     #webPaymentRequest.signableUnifiedRequestBase.operatorID (O,String, maxLength 255)
+            allowNo3ds:
+                description:  >
+                  It indicates if 3DS will be skipped or not when 3DS provider responses that the card is not enrolled.
+                  True means that PG will skip 3DS authorization and submit the payment directly. False means PG will not submit the payment but return 3DS enrollment failure error.
+                  It is required for following authenticationType -
+                    * `THREEDSAUTH`
+                  Otherwise, it is not applicable.
+                type: boolean
+                example: 'true'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: M.
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            isFirstCredentialStorage:
+                description: It indicates if it is the first time the card has been used on its wallet. True means it is the first time. Otherwise, false.
+                type: boolean
+                example: 'true'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: O. #transaction.creditCard.IsFirstCredentialStorage (Boolean, maxLength 5, O)
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            authReqData:
+                x-THREEDS-ENDEAVOUR: M.
+                x-THREEDS-DIMEBOX: M.
+                x-PSP-BAMBORA: M.
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                # It is required if authenticationType = THREEDSAUTH or THREEDSAUTH_DEFERREDPAYMENT.
+                $ref: '#/definitions/AuthReqData'
+            merchantData:
+                # It is required if authenticationType = NONE or THREEDSENROLL or THREEDSENROLL_DEFERREDPAYMENT. Otherwise, enrollmentId is used to retrieve this data.
+                $ref: '#/definitions/MerchantData'
+            paymentData:
+                # It is required if authenticationType = NONE or THREEDSENROLL or THREEDSENROLL_DEFERREDPAYMENT and optional if authenticationType = DEFERREDPAYMENT  as amount might be changed.
+                $ref: '#/definitions/PaymentData'
+            walletData:
+                x-PSP-MADA: NA.
+                # It is optional if authenticationType = NONE or THREEDSENROLL or THREEDSENROLL_DEFERREDPAYMENT. Otherwise, enrollmentId is used to retrieve this data.
+                $ref: '#/definitions/WalletData'
+            merchantRetryCounter:
+                description: The number of debt recovery attempts initiated by merchant.
+                type: integer
+                example: 2
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: O- It is only required for authentication Type = 'DEBTRECOVERY'.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            encData:
+                description: >
+                    Base64 encoded encrypted sensitive data. See "encDataOfPayRequest".
+                    It is required for following authenticationType -
+                      * `ACCOUNTSTATUSVERIFICATION`
+                      * `NONE_TRANSIT`
+                     It is optional for following authenticationType -
+                      * `DEBTRECOVERY`
+                    Otherwise, it is not applicable.
+                type: string
+                #$ref: '#/definitions/EncDataOfPayRequest'
+        x-validation: com.bellid.asptsm.paymentgateway.validator.ValidPaymentGatewayPayRequest
+    PaymentGatewayPayResponse:
+        type: object
+        required:
+        - requestId
+        - responseCode
+        properties:
+            requestId:
+                description: Identifier of this request command. This identifier is also used in the response for this request message.
+                type: string
+                maxLength: 64
+                example: 'a18db4b1-2446-4f1d-9771-6cff1a1837e7'
+            responseCode:
+                description: The four digit response code.
+                type: string
+                maxLength: 4
+                minLength: 4
+                example: '0000'
+                x-PSP-BAMBORA: M. #response.ResponseCode (Numeric,0/1,M) + response.DeclinedCode (Numeric, C-it is required when responseCode=1)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #Status (string, enum - FAIL, CAPTURED, DECLINED, PENDING)
+            responseMessage:
+                description: Human readable comments about the status of the request.
+                type: string
+                minLength: 1
+                maxLength: 255
+                example: 'The request is well received.'
+            externalErrorCode:
+                description: The response code from external systerm.
+                type: string
+                maxLength: 10
+                example: '0000'
+                x-PSP-BAMBORA: M. #response.declinedCode
+                x-PSP-MADA: M. #Metadata.Type (string, M,n-7)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #error.code (string)
+            externalErrorMessage:
+                description: Human readable comments about the status of the request from external system.
+                type: string
+                minLength: 1
+                maxLength: 999
+                example: '....'
+                x-PSP-BAMBORA: M.  #response.declinedMessage
+                x-PSP-MADA: M. #Metadata.Text (string, M, ans-999)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #error.message (string)
+            enrollmentId:   # it is mapped to 3ds_id from Dimebox
+                description:  >
+                  Unique identifier (GUID format) that is used to provide a link between a 3DS enrollment request and its follow-up 3DS authentication request or deferred payment.
+                    It is required for following authenticationType -
+                      * `THREEDSENROLL`
+                      * `THREEDSENROLL_DEFERREDPAYMENT`
+                    Otherwise, it is not applicable.
+                type: string
+                minLength: 1
+                maxLength: 36
+                x-internal-uniquess: true  (generated by TG)
+                example: '126cdf76-7393-48a9-80f0-5ed2e37bdfd2'
+                x-PSP-MADA: NA.
+            receipt:
+                description: Id of an authorized transaction. It is required data to initiate a refund.    # PSP transactionID
+                type: string
+                minLength: 1
+                maxLength: 36
+                example: '10001197'
+                x-internal-uniquess: true for SmartPay as we generate it on behalf of SmartPay
+                x-PSP-BAMBORA: M.  #response.Receipt (Alpha Numeric, maxLength 8,M)
+                x-PSP-MADA: O- It is present if the transaction is approved. #Entity.ApprovalCode (string, C, an-6)   Not available for Account Status Verification
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #trxRef/transactionReference (string, maxLength 255)
+            timestamp:
+                description: The time stamp of receiving the payment request. It is based on ISO 8601 string with GMT offset, Format 'yyyy-MM-ddTHH:mm:ss.SSSZ'. It is not returned if payment is not performed.
+                type: string
+                maxLength: 28
+                minLength: 28
+                example: '2017-12-15T23:00:00.00+01:00'
+                x-PSP-BAMBORA: M.  #response.Timestamp (Alpha Numeric,M, The format is dd-MMM-yyyy hh:mm:ss)
+                x-PSP-MADA: M. #Entity.ReconciliationDate (string, M, ns-10, the format is YYYY-MM-DD)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. # PG generates it based on current time when it sends the request to smartPay and use that value for this field (M, string, YYYY-mm-ddTHH:mm:ss.SSS  in UTC format)
+            transactionDetail:
+                $ref: '#/definitions/TransactionDetail'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            authRespData:
+                $ref: '#/definitions/AuthRespData'
+                x-THREEDS-ENDEAVOUR: M.
+                x-THREEDS-DIMEBOX: M.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            cardSchemeInfo:
+                $ref: '#/definitions/CardSchemeInfo'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+    PaymentGatewayRefundRequest:
+        type: object
+        required:
+        - requestId
+        - receipt
+        properties:
+            requestId:
+                description: Identifier of this request command. This identifier is also used in the response for this request message.
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: 'a18db4b1-2446-4f1d-9771-6cff1a1837e7'
+                x-internal-uniquess: true
+            receipt:
+                description: Id of an authorized transaction. It is required data to initiate a refund.
+                type: string
+                minLength: 1
+                maxLength: 36
+                example: '10001197'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: M. #response.Receipt (Alpha Numeric, maxLength 8,M)
+                x-PSP-MADA: M.  #Entity.ApprovalCode (string, M, an-6)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #trxRef (string, maxLength 255)
+            invoiceId:    # UPP - merchantOrderId
+                description: Reference Id for the transaction from the merchant.
+                type: string
+                minLength: 1
+                maxLength: 36
+                example: '...'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: M. #transaction.CustRef (Alpha Numeric, maxLength 32, M)
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #webPaymentRequest.signableUnifiedRequestBase.merchantTransactionID (string) stored in smartPay DB and also returned in the response
+            traceData:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/TraceData'
+            terminalData:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/TerminalData'
+            transitData:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/TransitData'
+            paymentChannel:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: O.
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/PaymentChannel'
+            operatorId:                # for PG report field "user"
+                description: Identifier of the payment operator. It can be the wallet account Id or the payment platform user Id.
+                type: string
+                minLength: 1
+                maxLength: 150
+                example: '...'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #webPaymentRequest.signableUnifiedRequestBase.operatorID (O,String, maxLength 255)
+            merchantData:
+                # It is optional for refund. (However, it is required for generating UPP report)
+                $ref: '#/definitions/MerchantData'
+            paymentData:
+                # It is optional for refund. (However, it is required for generating UPP report)
+                $ref: '#/definitions/PaymentData'
+            walletData:
+                # It is optional for refund. (However, it is required for generating UPP report)
+                x-PSP-MADA: NA.
+                $ref: '#/definitions/WalletData'
+    PaymentGatewayRefundResponse:
+        type: object
+        required:
+        - requestId
+        - responseCode
+        properties:
+            requestId:
+                description: Identifier of this request command. This identifier is also used in the response for this request message.
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: 'a18db4b1-2446-4f1d-9771-6cff1a1837e7'
+            responseCode:
+                description: The four digit response code.
+                type: string
+                maxLength: 4
+                minLength: 4
+                example: '0000'
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #Status (string, enum - FAIL, CAPTURED, DECLINED, PENDING)
+            responseMessage:
+                description: Human readable comments about the status of the request.
+                type: string
+                minLength: 1
+                maxLength: 255
+                example: 'The request is well received.'
+            externalErrorCode:
+                description: The response code from external systerm.
+                type: string
+                minLength: 1
+                maxLength: 10
+                example: '0000'
+                x-PSP-BAMBORA: M. #response.declinedCode
+                x-PSP-MADA: M. #Metadata.Type (string, M,n-7)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #error.code (string)
+            externalErrorMessage:
+                description: Human readable comments about the status of the request from external system.
+                type: string
+                minLength: 1
+                maxLength: 999
+                example: '....'
+                x-PSP-BAMBORA: M. #response.declinedMessage
+                x-PSP-MADA: M. #Metadata.Text (string, M, ans-999)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #error.message (string)
+            receipt:
+                description: Id of an authorized transaction. It is required data to initiate a refund.
+                type: string
+                minLength: 1
+                maxLength: 36
+                example: '10001197'
+                x-PSP-BAMBORA: M. #response.Receipt (Alpha Numeric, maxLength 8,M)
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #trxRef/transactionReference (string)
+            timestamp:
+                description: The time stamp of receiving the payment request. It is based on ISO 8601 string with GMT offset, the format is 'yyyy-MM-ddTHH:mm:ss.SSSZ'.
+                type: string
+                maxLength: 28
+                minLength: 28
+                example: '2017-12-15T23:00:00.00+01:00'
+                x-PSP-BAMBORA: M. #response.Timestamp (Alpha Numeric,M, The format is dd-MMM-yyyy hh:mm:ss)
+                x-PSP-MADA: M. #Entity.ReconciliationDate (string, M, ns-10, the format is YYYY-MM-DD)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #PG generates it based on current time when it sends the request to smartPay and use that value for this field (M, string, YYYY-mm-ddTHH:mm:ss.SSS  in UTC format)
+            transactionDetail:
+                $ref: '#/definitions/TransactionDetail'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            cardSchemeInfo:
+                $ref: '#/definitions/CardSchemeInfo'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+    PaymentGatewayReversalRequest:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        required:
+        - requestId
+        - traceData
+        - terminalData
+        - paymentData
+        - merchantData
+        properties:
+            requestId:
+                description: Identifier of this request command. This identifier is also used in the response for this request message.
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: 'a18db4b1-2446-4f1d-9771-6cff1a1837e7'
+                x-internal-uniquess: true
+            traceData:
+                $ref: '#/definitions/TraceData'  # trace & ReconciliationDate
+            terminalData:
+                $ref: '#/definitions/TerminalData'  # terminalID
+            paymentData:
+                $ref: '#/definitions/PaymentData'  # pan & amount
+            merchantData:
+                $ref: '#/definitions/MerchantData' # merchantId
+            encData:
+                description: >
+                  Base64 encoded encrypted sensitive data. See "encDataOfPayRequest".
+                type: string
+                   #$ref: '#/definitions/EncDataOfPayRequest'
+    PaymentGatewayReversalResponse:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        required:
+        - requestId
+        - responseCode
+        properties:
+            requestId:
+                description: Identifier of this request command. This identifier is also used in the response for this request message.
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: 'a18db4b1-2446-4f1d-9771-6cff1a1837e7'
+            responseCode:
+                description: The four digit response code.
+                type: string
+                maxLength: 4
+                minLength: 4
+                example: '0000'
+            responseMessage:
+                description: Human readable comments about the status of the request.
+                type: string
+                minLength: 1
+                maxLength: 255
+                example: 'The request is well received.'
+            externalErrorCode:
+                description: The response code from external systerm.
+                type: string
+                minLength: 1
+                maxLength: 10
+                example: '0000'
+            externalErrorMessage:
+                description: Human readable comments about the status of the request from external system.
+                type: string
+                minLength: 1
+                maxLength: 255
+                example: '....'
+            timestamp:
+                description: The time stamp of receiving the payment request. It is based on ISO 8601 string with GMT offset, the format is 'yyyy-MM-ddTHH:mm:ss.SSSZ'.
+                type: string
+                maxLength: 28
+                minLength: 28
+                example: '2017-12-15T23:00:00.00+01:00'
+            transactionDetail:
+                $ref: '#/definitions/TransactionDetail'
+            cardSchemeInfo:
+                $ref: '#/definitions/CardSchemeInfo'
+    PaymentChannel:
+        description: The channel from where the payment was triggered.
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: O.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: string
+        enum:
+        - ONLINE
+        - IN_APP
+        - IN_STORE
+        example: 'IN_APP'
+      # for UPP "paymentChannel"
+    MerchantData:
+        description: >
+          This object data contains all merchant data.
+            It is required for following authenticationType -
+             * `NONE`
+             * `THREEDSENROLL`
+             * `THREEDSENROLL_DEFERREDPAYMENT`
+             * `ACCOUNTSTATUSVERIFICATION`
+             * `DEBTRECOVERY`
+             * `NONE_TRANSIT`
+             * `Reversal`
+            It is conditional for 'REFUND'. [This field is required for 'REFUND' in the context of Mada.]
+#        x-THREEDS-ENDEAVOUR: M.
+#        x-THREEDS-DIMEBOX: M.
+#        x-PSP-BAMBORA: M.
+#        x-PSP-MADA: M.
+#        x-PSP-SMARTPAY-BUREAU-CNP: M.
+        type: object
+        required:
+        - merchantId
+        properties:
+            merchantId:
+                description: Identifier of the merchant.
+                type: string
+                minLength: 1
+                maxLength: 36
+                example: '...'
+                x-THREEDS-ENDEAVOUR: M. #VEREQ.mid(Alpha Numeric, maxLength 25)
+                x-THREEDS-DIMEBOX: M. #enroll.account (String) for v1   configure "authenticator" for v2
+                x-PSP-BAMBORA: M.  #transaction.Security.UserName (maxLength 32,M) & transaction.Security.Password (maxLength 16,M)  retrieved with merchantID
+                x-PSP-MADA: M. # merchantId (string, M, ans-15)
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #clientID (string)
+            merchantName:
+                description: Name of the merchant.
+                type: string
+                minLength: 1
+                maxLength: 35
+                example: '...'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA:  NA.
+                x-PSP-MADA: M- it is required except for 'Reversal'.  #merchant.Name (string, M, ans-35)
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            merchantContact:
+                description: Contact number of the merchant.
+                type: string
+                minLength: 1
+                maxLength: 10
+                example: '...'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-PSP-BAMBORA: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-MADA: O- it is not required for 'Reversal'.  #merchant.contact (string, O, n-10)
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            acceptLiability:
+                description: >
+                  It indicates that whether the merchant accepts liability if PSP transaction response indicates that the merchant is liable.
+                  Note that if authenticationType is NONE, then this field will be set as TRUE.
+                type: boolean
+                example: 'true'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: M.  #internal logic field
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            acquirerBin:
+                description: The acquirer BIN. It is typically 6 digits. However, it can be up to 11 digits.
+                type: string
+                pattern: ^\d{6,11}$
+                example: '999999'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: M. # transaction.creditcard.CardType (Alpha Numeric, maxLength 16, M) # based on BIN to get cardType from DB
+                x-PSP-MADA: M- it is required except for 'Reversal'. #TxnSrc (string, M, n-11)
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            merchantDivision:
+                description: In some cases merchants may be part of divisions.
+                type: string
+                minLength: 1
+                maxLength: 16
+                example: '...'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: O. #transaction.AccountNumber (Alpha Numeric, maxLength 16,O)
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            merchantSubDivision:
+                description: In some cases merchants may be part of sub-divisions.
+                type: string
+                minLength: 1
+                maxLength: 16
+                example: '...'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: O.  #transaction.MerchantNumber (Alpha Numeric, maxLength 16,O)
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            merchantCategoryCode:
+                description: A four digit number listed in ISO 18245.
+                type: string
+                pattern: ^\d{4}$
+                example: '4112'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: NA.
+                x-PSP-MADA: M- it is not required for 'Reversal'. #merchantType (string, M, n-4)
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+            merchantAddress:
+                x-THREEDS-ENDEAVOUR: NA.
+                x-PSP-BAMBORA: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-MADA: M- it is not required for 'Reversal'.  #merchant (object, M)
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                $ref: '#/definitions/Address'
+            storeId:
+                description: Identifier of the store.
+                type: string
+                maxLength: 64
+                minLength: 1
+                example: '0004'
+                x-THREEDS-ENDEAVOUR: NA.
+                x-THREEDS-DIMEBOX: NA.
+                x-PSP-BAMBORA: M.  #transaction.UserDefined.StoreID (Numeric, maxLength 4,M)
+                x-PSP-MADA: NA.
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #webPaymentRequest.signableUnifiedRequestBase.configparams.storeID (string)
+    PaymentData:
+        description:  >
+          This object data contains all data related to a payment to be performed.
+            It is required for following authenticationType -
+              * `NONE`
+              * `THREEDSENROLL`
+              * `THREEDSENROLL_DEFERREDPAYMENT`
+              * `ACCOUNTSTATUSVERIFICATION`
+              * `DEBTRECOVERY`
+              * `NONE_TRANSIT`
+              * `Reversal`
+            It is Conditional for following cases-
+              * `DEFERREDPAYMENT` - It is required if amount is different.
+              * `REFUND`  - It is required if amount is different. [This field is required for 'REFUND' in the context of Mada.]
+#        x-THREEDS-ENDEAVOUR: M.
+#        x-THREEDS-DIMEBOX: M.
+#        x-PSP-BAMBORA: M.
+#        x-PSP-MADA: M.
+#        x-PSP-SMARTPAY-BUREAU-CNP: M.
+        type: object
+        required:
+        - amount
+        properties:
+            tokenReferenceId:
+                description: >
+                  Unique identifier of the token.
+                    It is required for following authenticationType -
+                     * `NONE`
+                     * `THREEDSENROLL`
+                     * `THREEDSENROLL_DEFERREDPAYMENT`
+                     * `ACCOUNTSTATUSVERIFICATION`
+                     * `DEBTRECOVERY`
+                     * `NONE_TRANSIT`
+                     * `Reversal`
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: 'b2b92b5b-403d-4bd8-a756-6e415b86b291'
+#                x-THREEDS-ENDEAVOUR: M. #pan (Numeric, 19), expiry (Numeric, YYMM, 4), name (Alpha numeric, maxLength 25)  after detokenization
+#                x-THREEDS-DIMEBOX: M. #enroll.card (string) after detokenization
+#                x-PSP-BAMBORA: M. # transaction.CreditCard.CardNumber (Numeric, maxLength 16,M) Transaction.CreditCard.ExpM (Numeric, maxLength 2,C)  Transaction.CreditCard.ExpY (Numeric, maxLength 4,C) after detokenization
+#                x-PSP-MADA: M. # Pan(string, M, n-19) & ExpiryDate (string, O, n-4, format is YYMM) & PanSequence (string, M, n-3)
+#                x-PSP-SMARTPAY-BUREAU-CNP: M. #webPaymentRequest.signableUnifiedRequestBase.card.PAN(string, minLength is 1 and maxLength is 20) & webPaymentRequest.signableUnifiedRequestBase.card.expriy (format is YYYY-MM)
+            currencyCode:
+                description: >
+                  The transaction currency code is defined as per ISO 4217 - Currency codes.
+                    It is required for following authenticationType -
+                      * `NONE`
+                      * `THREEDSENROLL`
+                      * `THREEDSENROLL_DEFERREDPAYMENT`
+                      * `ACCOUNTSTATUSVERIFICATION`
+                      * `DEBTRECOVERY`
+                      * `NONE_TRANSIT`
+                type: string
+                pattern: ^[A-Z]{3}$
+                example: 'USD'
+#                x-THREEDS-ENDEAVOUR: M. #currency(Numeric, length 3, ISO 4217)
+#                x-THREEDS-DIMEBOX: M. #enroll.currency_code  for v2
+                x-PSP-BAMBORA: NA.
+#                x-PSP-MADA: M.  # Currency (string, M, n-3, 3 digit currency code)
+#                x-PSP-SMARTPAY-BUREAU-CNP: M. #webPaymentRequest.signableUnifiedRequestBase.currencyCode (string, 3-character)
+            amount:
+                description: >
+                  The amount of the transaction. A positive number with one decimal point (e.g. xx.xx).
+                  The location of the decimal point should comply with the currency code.
+                  If amount is provided for REFUND or when authenticationType = DEFERREDPAYMENT, it will overwrite the amount provided in the preceding REFUND or THREEDSENROLL_DEFERREDPAYMENT.
+                type: string
+                maxLength: 12
+                pattern: ^\d+(\.\d)?\d*$
+                example: '2500'
+#                x-THREEDS-ENDEAVOUR: M. #amount(Alpha Numeric, maxLength 20)
+#                x-THREEDS-DIMEBOX: M. #enroll.amount (string)
+#                x-PSP-BAMBORA:  M. #refund.Amount (Numeric, maxLength 10,M, integer)
+#                x-PSP-SMARTPAY-BUREAU-CNP: M. #webPaymentRequest.signableUnifiedRequestBase.purchaseAmount (long integer)
+#                x-PSP-MADA: M.  # Amount (string, M, n-12)
+            accountType:
+                description: The type of the account.
+                type: string
+                minLength: 1
+                maxLength: 20
+                example: '...'
+#                x-THREEDS-ENDEAVOUR: NA.
+#                x-THREEDS-DIMEBOX: NA.
+#                x-PSP-BAMBORA: M.  #transaction.Wallet.Type (alhpaNumeric, maxLength 20,M)
+                x-PSP-SMARTPAY-BUREAU-CNP: NA.
+                x-PSP-MADA: NA.
+    WalletData:
+        description: >
+          This object data contains all data from the payment wallet.
+            It is required for following authenticationType -
+              * `NONE`
+              * `THREEDSENROLL`
+              * `THREEDSENROLL_DEFERREDPAYMENT`
+            It is Optional for following cases-
+              * `REFUND`
+            It is not applicable for following cases -
+              * `ACCOUNTSTATUSVERIFICATION`
+              * `DEBTRECOVERY`
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: M.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: M.
+        type: object
+        required:
+        - walletOrderId
+        - walletTransactionId
+        properties:
+            walletOrderId:
+                description: Unique identifier of the payment order.  # UPP paymentOrderID
+                type: string
+                minLength: 1
+                maxLength: 36
+                example: '871c0a90-8f20-11e8-9eb6-529269fb1459'
+                x-PSP-SMARTPAY-BUREAU-CNP: M. #requesterDetails.purchaseDescription  (string,M)
+            walletTransactionId:
+                description: The reference of the payment transaction generated by the wallet.  # UPP transactionID
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: '...'
+                x-PSP-BAMBORA:  M. #transaction.CustNumber (Alpha Numeric, maxLength 32, O)  & queryTransaction.Criteria.CustNumber (Alpha Numeric, maxLength 32, O)
+    TerminalData:
+        description: Terminal related data.
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        required:
+        - terminalId
+        properties:
+            terminalId:
+                description: Identifier of the terminal.
+                type: string
+                minLength: 1
+                maxLength: 16
+                example: ''
+                x-PSP-MADA: M.   #TerminalId (string, M, 16)
+    EncDataOfPayRequest:
+        description: Base64 encoded encrypted sensitive data. See "EncDataOfPayRequest".
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: M- It is conditional for authenticationType = 'DEBTRECOVERY' and Reversal. Otherwise, it is required.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        required:
+        - iCCRelatedData
+        properties:
+            track2:
+                description: Track2 equivalent data.
+                type: string
+                minLength: 1
+                maxLength: 37
+                example: '...'
+                x-PSP-MADA: M- It is required except for Reversal and merchant-initiated 'DEBTRECOVERY'.   #Track2 (string, M, Max 37)
+            iCCRelatedData:
+                description: Integrated circuit card related data.
+                type: string
+                minLength:  1
+                maxLength: 999
+                example: '...'
+                x-PSP-MADA: M- It is required except for Reversal and merchant-initiated 'DEBTRECOVERY'.   #EMV (string, M, ans...999)
+    TraceData:
+        description: It is used for tracing.
+        x-THREEDS-ENDEAVOUR: NA.
+        x-PSP-BAMBORA: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        required:
+        - traceNumber
+        - transmissionDateTime
+        properties:
+            traceNumber:
+                description: >
+                  The trace number.
+                    It is required for following authenticationType -
+                      * `ACCOUNTSTATUSVERIFICATION`
+                      * `DEBTRECOVERY`
+                      * `NONE_TRANSIT`
+                      * `Refund`
+                      * `Reversal`
+                  Otherwise, it is not applicable.
+                type: string
+                maxLength: 6
+                minLength: 1
+                example: '...'
+               # x-PSP-MADA: M.   #Trace (string, M, n-6)
+            referenceId:
+                description: >
+                 The reference identifier.
+                  It is required for following authenticationType -
+                    * `ACCOUNTSTATUSVERIFICATION`
+                    * `DEBTRECOVERY`
+                    * `NONE_TRANSIT`
+                    * `REFUND`
+                   Otherwise, it is not applicable.
+                type: string
+                maxLength: 12
+                minLength: 1
+                example: '...'
+                #x-PSP-MADA: M.   #ReferenceId (string, M, an-12)
+            transmissionDateTime:
+                description: >
+                  Transmission date and time. It is based on ISO 8601 string with GMT offset, the format is 'yyyy-MM-ddTHH:mm:ss.Z'.
+                    It is required for following authenticationType -
+                      * `ACCOUNTSTATUSVERIFICATION`
+                      * `DEBTRECOVERY`
+                      * `NONE_TRANSIT`
+                      * `Refund`
+                    Otherwise, it is not applicable.
+                type: string
+                maxLength: 25
+                minLength: 25
+                example: '2020-01-29T10:01:57+03:00'
+                #x-PSP-MADA: M. #TransmissionDateTime (string, M, ans-25)
+            lastTxnDateTime:
+                description: >
+                 The last transaction date and time. It is based on ISO 8601 string with GMT offset, the format is 'yyyy-MM-ddTHH:mm:ss.Z'.
+                  It is required for following authenticationType -
+                     * `ACCOUNTSTATUSVERIFICATION`
+                     * `NONE_TRANSIT`
+                  It is conditional (it is required for cardholder-initiated debt recovery) for following authenticationType -
+                     * `DEBTRECOVERY`
+                  Otherwise, it is not applicable.
+                type: string
+                maxLength: 25
+                minLength: 25
+                example: '2020-01-29T10:01:57+03:00'
+                #x-PSP-MADA: M.   #LocalDateTime (string, M, ans-25)
+            firstTxnDateTime:
+                description: >
+                 The first tap transaction date and time. It is based on ISO 8601 string with GMT offset, the format is 'yyyy-MM-ddTHH:mm:ss.Z'.
+                    It is conditional for following authenticationType (it is required for MTT not required for KFT) -
+                     * `DEBTRECOVERY`
+                     * `NONE_TRANSIT`
+                     * `REFUND`
+                    It is Optional for following authenticationType -
+                     * `ACCOUNTSTATUSVERIFICATION`
+                type: string
+                minLength:  25
+                maxLength: 25
+                example: '2020-01-29T05:01:57+03:00'
+                #x-PSP-MADA: O.   #CaptureDate (string,O, ans-25, format is UTC)
+            originalReferenceId:
+                description: >
+                    The original referenceId of transaction.
+                     It is required for following authenticationType -
+                       * `DEBTRECOVERY`
+                       * `REFUND`
+                      Otherwise, it is not applicable.
+                type: string
+                maxLength: 12
+                minLength: 1
+                example: '...'
+                #x-PSP-MADA: C.   #OriginalReferenceId (string, C, an-12) M for MADA and O for Visa/MC
+            originalLastTxnDateTime:
+                description: >
+                    The original lastTxnDateTime of transaction. It is based on ISO 8601 string with GMT offset, the format is 'yyyy-MM-ddTHH:mm:ss.Z'.
+                     It is required for following authenticationType -
+                       * `DEBTRECOVERY`
+                       * `REFUND`
+                      Otherwise, it is not applicable.
+                type: string
+                maxLength: 25
+                minLength: 25
+                example: '2020-01-29T10:01:57+03:00'
+                #x-PSP-MADA: C.   #OriginalLocalDateTime (string, C, an-12) M for MADA and O for Visa/MC
+            originalTraceNumber:
+                description: >
+                    The original trace number of transaction.
+                     It is required for following transactionType -
+                       * `REFUND`
+                      Otherwise, it is not applicable.
+                type: string
+                maxLength: 6
+                minLength: 1
+                example: '...'
+                # x-PSP-MADA: C.   #OriginalTrace (string, C, n-6) O for MADA and M for Visa/MC
+            originalTransmissionDateTime:
+              description: >
+                The original transmission date and time of the request. It is based on ISO 8601 string with GMT offset, the format is 'yyyy-MM-ddTHH:mm:ss.Z'.
+                  It is required for following authenticationType -
+                    * `Reversal`
+                   Otherwise, it is not applicable.
+              type: string
+              maxLength: 25
+              minLength: 25
+              example: '2020-01-29T10:01:57+03:00'
+              # x-PSP-MADA: M.  # ReconciliationDate(string, M, the format is YYYY-MMM-DD) in Reversal
+    TransitData:
+        description: Transit related data.
+        x-THREEDS-ENDEAVOUR: NA.
+        x-PSP-BAMBORA: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        properties:
+            modeType:
+                description: >
+                  The type of transit. It is required for authenticationType - 'NONE_TRANSIT'. Otherwise, not applicable.
+                    * `00` Known fare transaction -online
+                    * `01` Known fare transaction -deferred
+                    * `02` Mass Transit Transaction
+                type: string
+                pattern: ^\d{2}$
+                #- '00'  Known fare transaction -online
+                #- '01'   #Known fare transaction -deferred
+                #- '02'   #Mass Transit Transaction
+                example: '00'
+                #x-PSP-MADA: O- It is required for 'NONE_TRANSIT'.   #Model (string, M, enum) only mandatory for Purchase
+            modeIndicator:
+                description: Transportation Mode.
+                type: string
+                pattern: ^\d{2}$
+                example: '00'
+                x-PSP-MADA: O- It is required for MasterCard,otherwise, not applicable.  #TransportationModeIndicator (string, C, n-2)
+    AuthReqData:
+        description: >
+          This object data contains authentication request data.
+            It is required for following authenticationType -
+              * `THREEDSAUTH`
+              * `THREEDSAUTH_DEFERREDPAYMENT`
+            Otherwise, not applicable.
+        x-THREEDS-ENDEAVOUR: M.
+        x-THREEDS-DIMEBOX: M.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        properties:
+            authReqData:
+                 description: It contains paRes.
+                 type: string
+                 minLength: 1
+                 example: '....'
+                 x-THREEDS-ENDEAVOUR: M. #PAREQ.url (string)
+                 x-THREEDS-DIMEBOX: M. #Authenticate.pares (string)
+            paRes:
+                 description: It contains paRes.
+                 type: string
+                 minLength: 1
+                 example: '....'
+                 x-THREEDS-ENDEAVOUR: M. #PAREQ.url (string)
+                 x-THREEDS-DIMEBOX: M. #Authenticate.pares (string)
+    AuthRespData:
+        description: This object data contains all 3DS related data.
+        x-THREEDS-ENDEAVOUR: M.
+        x-THREEDS-DIMEBOX: M.
+        x-PSP-BAMBORA: M.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        properties:
+            issuerAcsUrl:
+                description: It contains issuerAcsUrl. It is returned in 3DS enrollment response.
+                type: string
+                minLength: 1
+                example: '...'
+                x-THREEDS-ENDEAVOUR: M. #enroll.url (string)
+                x-THREEDS-DIMEBOX: M. #enroll.url (string)
+            paReq:
+                description: It contains paReq. It is returned in 3DS enrollment response.
+                type: string
+                minLength: 1
+                example: '...'
+                x-THREEDS-ENDEAVOUR: M. #enroll.pareq (string)
+                x-THREEDS-DIMEBOX: M. #enroll.pareq (string)
+            enrollmentStatus:
+                description: It contains the result of 3DS enrollment. It is returned in 3DS enrollment response. # new added field
+                type: string
+                enum:
+                - 'Y'
+                - 'N'
+                - 'U'
+                example: 'Y'
+                x-THREEDS-ENDEAVOUR: M. #enroll.avr (Enum- U,N,Y(or blank))
+                x-THREEDS-DIMEBOX: M. #enroll.status (enum)
+                x-PSP-BAMBORA:  M. #transaction.ThreeDS.VER(Alpha Numeric, maxLength 02,C)
+            xid:
+                description: It contains XID. It is returned in 3DS enrollment response.
+                type: string
+                minLength: 1
+                maxLength: 100
+                example: '...'
+                x-THREEDS-ENDEAVOUR: M. #enroll.xid (Base64 encoded, maxLength 28)
+                x-THREEDS-DIMEBOX: M. #enroll.xid  for v2
+                x-PSP-BAMBORA:  M. #transaction.ThreeDS.XID(Base64 encoded, maxLength 100,C)
+            eci:
+                description: It contains ECI. It is returned in 3DS authorization response.
+                type: number
+                example: '05'
+                x-THREEDS-ENDEAVOUR: M. #veres.ECI (numeric, 1)
+                x-THREEDS-DIMEBOX: M. #Authenticate.eci (string)
+                x-PSP-BAMBORA:  M. #transaction.ThreeDS.ECI(Alpha Numeric, maxLength 02,C)
+            cavv:
+                description: It contains CAVV data. It is returned in 3DS authorization response.
+                type: string
+                minLength: 1
+                maxLength: 32
+                example: '...'
+                x-THREEDS-ENDEAVOUR: M. #veres.cavv (alpha numeric, Max 28, base64)
+                x-THREEDS-DIMEBOX: M. #Authenticate.cavv (string)
+                x-PSP-BAMBORA:  M. #transaction.ThreeDS.CAVV(Alpha Numeric, maxLength 100,M)
+            cavvAlgorithm:
+                description: It contains the algorithm type of CAVV. It is returned in 3DS authorization response.
+                type: string
+                minLength: 1
+                example: '...'
+                x-THREEDS-ENDEAVOUR: M. #veres.cavvAlgorithm (TODO)
+            authStatus:
+                description: It contains 3DS authorization result. It has a pre-defined value. It is returned in 3DS authorization response.
+                type: string
+                enum:
+                - 'Y'
+                - 'N'
+                - 'U'
+                - 'A'
+                example: 'Y'
+                x-THREEDS-ENDEAVOUR: M. #veres.status (ENUM-U,N,Y,A)
+                x-THREEDS-DIMEBOX: M. #Authenticate.status (enum)
+                x-PSP-BAMBORA:  M. #transaction.ThreeDS.PAR(Alpha Numeric, maxLength 02,C)
+            sigValidationStatus:
+                description: It contains the validation result of paRes signature. It is returned in 3DS authorization response. # new added field
+                type: string
+                enum:
+                - 'Y'
+                - 'N'
+                example: 'Y'
+                x-THREEDS-ENDEAVOUR: M. #veres.signature (Enum-valid, Expired, invalid)
+                x-THREEDS-DIMEBOX: M. #Authenticate.signature_validated (boolean)
+                x-PSP-BAMBORA:  M. #transaction.ThreeDS.SigVerif(Alpha Numeric, maxLength 02,C)
+    Address:
+        description: The object contains address related data.
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: M- it is required except for 'Reversal'.  #merchant (object, M) ASV
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        required:
+        - line1
+        - countryCode
+        properties:
+            line1:
+                description: Address line 1.
+                type: string
+                minLength: 1
+                maxLength: 140
+                example: '...'
+                x-PSP-MADA: M. # merchant.address (string, M, ans-35) AVS
+            city:
+                description: City name.
+                type: string
+                minLength: 1
+                maxLength: 100
+                example: '...'
+                x-PSP-MADA: M. # merchant.city (string, M, ans-13) AVS
+            state:
+                description: State or province code in ISO 3166-2 format.
+                type: string
+                minLength: 1
+                maxLength: 13
+                example: '...'
+                x-PSP-MADA: O. #merchant.state (string, O, ans-13) AVS
+            countryCode:
+                description: Country code in ISO-3166-1 Alpha-3 format.
+                type: string
+                minLength: 3
+                maxLength: 3
+                example: '...'
+                x-PSP-MADA: M. #merchant.country (string, M, a-3) AVS
+            postalCode:
+                description: Postal code.
+                type: string
+                maxLength: 16
+                minLength: 3
+                example: '...'
+                x-PSP-MADA: O- It is required for connecting Mada, and optional for connecting Visa/MasterCard.  #merchant.zip (string, C, ans-10) AVS- it is required for Mada and optional for Visa/MC.
+    TransactionDetail:
+        description: Transaction related data.
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        required:
+        - amount
+        - currencyCode
+        properties:
+            amount:
+                description: The amount of the transaction. A positive number with one decimal point (e.g. xx.xx). The location of the decimal point should comply with the currency code.
+                type: string
+                maxLength: 12
+                pattern: ^\d+(\.\d)?\d*$
+                example: '2500'
+                x-PSP-MADA: M.  # Entity.Amount (string, M, n-12)
+            currencyCode:
+                description: The transaction currency code is defined as per ISO 4217 - Currency codes.
+                type: string
+                pattern: ^[A-Z]{3}$
+                example: 'USD'
+                x-PSP-MADA: M.  # Entity.Currency (string, M, n-3, 3 digit currency code)
+            panSuffix:
+                description: The last four digits of the PAN.
+                type: string
+                pattern: ^[0-9]{4}$
+                example: '1234'
+                x-PSP-MADA: O.  # Entity.PanSuffix (string, C, n-4)
+            paymentAccountReference:
+                description: Globally unique reference of a cardholder's PAN. It is commonly abbreviated as PAR.
+                type: string
+                maxLength: 29
+                minLength: 29
+                example: '...'
+                x-PSP-MADA: O.  # Entity.PAR (string, C, an-29)
+            referenceId:
+                description: The referenceId.
+                type: string
+                maxLength: 12
+                minLength: 1
+                example: '...'
+                x-PSP-MADA: M.   # Entity.referenceId (string, M, an-12)
+            transactionResult:
+                description: The result of the transaction.
+                type: string
+                maxLength: 16
+                minLength: 1
+                example: '...'
+                x-PSP-MADA: M.  # Entity.ResponseCode (string, M, n-2)
+            transactionType:
+                description: The type of the transaction.
+                type: string
+                maxLength: 16
+                minLength: 1
+                example: '...'
+                x-PSP-MADA: M.  # Entity.ProcessingCode (string, M, n-6)
+            traceNumber:
+                description: The trace number.
+                type: string
+                maxLength: 6
+                minLength: 1
+                x-PSP-MADA: M.  # Entity.Trace (string, M, n-6)
+    CardSchemeInfo:
+        description: Card scheme related data.
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: object
+        properties:
+            transCode:
+                description: Transaction code.
+                type: string
+                maxLength: 6
+                minLength: 1
+            panExtended:
+                description: PanExtended.
+                type: string
+                maxLength: 3
+                minLength: 1
+            authAmount:
+                description: Authorized amount.
+                type: string
+                maxLength: 12
+                minLength: 1
+            srcAmount:
+                description: Original amount.
+                type: string
+                maxLength: 12
+                minLength: 1
+            purchaseDate:
+                description: Purchase date, the format is MMddhhmmss.
+                type: string
+                maxLength: 10
+                minLength: 1
+            stan:
+                description: Trace number.
+                type: string
+                maxLength: 6
+                minLength: 1
+            posTermCap:
+                description: PosTermCap.
+                type: string
+                maxLength: 1
+                minLength: 1
+            posEntryMode:
+                description: PosEntryMode.
+                type: string
+                maxLength: 2
+                minLength: 1
+            mcc:
+                description: Merchant category code.
+                type: string
+                maxLength: 4
+                minLength: 1
+            acquirerId:
+                description: AcquirerId.
+                type: string
+                maxLength: 11
+                minLength: 1
+            approvalCode:
+                description: ApprovalCode.
+                type: string
+                maxLength: 6
+                minLength: 1
+            srcCurrencyCode:
+                description: SrcCurrencyCode.
+                type: string
+                maxLength: 3
+                minLength: 1
+            merchantName:
+                description: MerchantName.
+                type: string
+                maxLength: 22
+                minLength: 1
+            merchantCity:
+                description: MerchantCity.
+                type: string
+                maxLength: 13
+                minLength: 1
+            authCurrencyCode:
+                description: AuthCurrencyCode.
+                type: string
+                maxLength: 3
+                minLength: 1
+            terminalId:
+                description: TerminalId.
+                type: string
+                maxLength: 8
+                minLength: 1
+            cardAcceptorId:
+                description: CardAcceptorId.
+                type: string
+                maxLength: 15
+                minLength: 1
+            authRespCode:
+                description: AuthRespCode.
+                type: string
+                maxLength: 2
+                minLength: 1
+            authSrcCode:
+                description: AuthSrcCode.
+                type: string
+                maxLength: 1
+                minLength: 1
+            cATIndicator:
+                description: CATIndicator.
+                type: string
+                maxLength: 1
+                minLength: 1
+            paymentSrvIndicator:
+                description: PaymentSrvIndicator.
+                type: string
+                maxLength: 1
+                minLength: 1
+            transId:
+                description: TransId.
+                type: string
+                maxLength: 15
+                minLength: 1
+            validationCode:
+                description: ValidationCode.
+                type: string
+                maxLength: 4
+                minLength: 1
+            cvvResCode:
+                description: CvvResCode.
+                type: string
+                maxLength: 1
+                minLength: 1
+            cardSeqNum:
+                description: CardSeqNum.
+                type: string
+                maxLength: 3
+                minLength: 1
+            conversionDate:
+                description: ConversionDate, the format is MMDD.
+                type: string
+                maxLength: 4
+                minLength: 1
+            feeAmount:
+                description: FeeAmount.
+                type: string
+                maxLength: 9
+                minLength: 1
+            forwardInstId:
+                description: ForwardInstId.
+                type: string
+                maxLength: 11
+                minLength: 1
+            recvInstId:
+                description: RecvInstId.
+                type: string
+                maxLength: 11
+                minLength: 1
+            rrn:
+                description: ReferenceId.
+                type: string
+                maxLength: 12
+                minLength: 1
+            settlementDate:
+                description: SettlementDate, the format is YYYY-MM-DD.
+                type: string
+                maxLength: 10
+                minLength: 1
+    Error400Response:
+        required:
+        - requestId
+        - responseCode
+        - responseMessage
+        properties:
+            requestId:
+                description: Identifier of this request command. This identifier is also used in the response for this request message.
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: 'a18db4b1-2446-4f1d-9771-6cff1a1837e7'
+            responseCode:
+                description: The four digit response code.
+                type: string
+                maxLength: 4
+                minLength: 4
+            responseMessage:
+                description: Human readable comments about the status of the request.
+                type: string
+                minLength: 1
+                maxLength: 255
+                example: '...'
+            externalErrorCode:
+                description: The response code from external systerm.
+                type: string
+                minLength: 1
+                maxLength: 10
+                example: '0000'
+            externalErrorMessage:
+                description: Human readable comments about the status of the request from external system.
+                type: string
+                minLength: 1
+                maxLength: 255
+                example: '....'
+    Error500Response:
+        required:
+        - requestId
+        - responseCode
+        - responseMessage
+        properties:
+            requestId:
+                description: Identifier of this request command. This identifier is also used in the response for this request message.
+                type: string
+                minLength: 1
+                maxLength: 64
+                example: 'a18db4b1-2446-4f1d-9771-6cff1a1837e7'
+            responseCode:
+                description: The four digit response code.
+                type: string
+                maxLength: 4
+                minLength: 4
+            responseMessage:
+                description: Human readable comments about the status of the request.
+                type: string
+                minLength: 1
+                maxLength: 255
+                example: '...'
+            externalErrorCode:
+                description: The response code from external systerm.
+                type: string
+                minLength: 1
+                maxLength: 10
+                example: '0000'
+            externalErrorMessage:
+                description: Human readable comments about the status of the request from external system.
+                type: string
+                minLength: 1
+                maxLength: 255
+                example: '....'
+  # note that 400 9002 is mapped to bambora 161
+    ResponseCodeList:
+        type: string
+        title: Response code list
+        description:  |
+            Note that this object is used for formatting only
+            List of response codes and their description that can be returned in the responses of this API.
+            >
+            Updated at [2019-03-01]
+            >
+            **Http code** |**Response code** | **Description**
+            :------|:------|:------
+            200 | 0000 | SUCCESS.
+            200 | 0001 | 3DS Enrollment is successful and 3DS Authentication is required.
+            200 | 0002 | Payment is performed but 3DS is not performed (because AllowNo3DS is set to true or 3DS authentication result is attempted).
+            400 | 9001 | Invalid Request
+            400 | 9002 | Refund amount exceeds original purchase or capture plus any previous refund total.
+            400 | 9003 | Token invalid state, the token is not currently in a valid state for this request.
+            400 | 9004 | Token not found.
+            400 | 9005 | Transaction expired.
+            400 | 9081 | Unknown Merchant ID
+            400 | 9082 | Unknown Enrollment ID
+            400 | 9083 | PG Internal Error
+            500 | 9101 | PSP Not Available
+            200 | 9102 | Transaction response with PSP indicates liability is not shifted to issuer and merchant configuration indicates transaction should be declined. PG will initiate a refund.
+            200 | 9199 | Unknown Error Occurred at PSP
+            200 | 9200 | 3DS Enrollment/Authentication is failed
+            500 | 9201 | 3DS provider Not Available
+            200 | 9202 | 3DS Enrollment/Authentication is unable to be performed
+            200 | 9203 | Unknown Error Occurred at 3DS provider
+            200 | 9204 | 3DS Authentication is attempted.
+            200 | 9701 | Refer to Card Issuer
+            200 | 9702 | Refer to Issuer's Special Conditions
+            200 | 9703 | Invalid Merchant
+            200 | 9704 | Pick Up Card
+            200 | 9705 | Do Not Honour
+            200 | 9706 | Unknown Error Occurred at Card Issuer
+            200 | 9707 | Pick Up Card (Special Conditions)
+            200 | 9709 | Request in Progress
+            200 | 9710 | Partial Amount Approved
+            200 | 9712 | Invalid Transaction
+            200 | 9713 | Invalid Amount
+            200 | 9714 | Invalid Card Number
+            200 | 9715 | No Such Issuer
+            200 | 9717 | Customer Cancellation
+            200 | 9718 | Customer Dispute
+            200 | 9719 | Re-enter Transaction
+            200 | 9720 | Invalid Response
+            200 | 9721 | No Action Taken
+            200 | 9722 | Suspected Malfunction
+            200 | 9723 | Unacceptable Transaction Fee
+            200 | 9724 | File Update not  Supported Receiver
+            200 | 9725 | Unable to Locate Record on File
+            200 | 9726 | Duplicate File Update Record
+            200 | 9727 | File Update Field Edit Error
+            200 | 9728 | File Update File Locked Out
+            200 | 9729 | File Update not Successful
+            200 | 9730 | Format Error
+            200 | 9731 | Bank not Supported by Switch
+            200 | 9732 | Completed Partially
+            200 | 9733 | Expired Card-Pick Up
+            200 | 9734 | Suspected Fraud-Pick Up
+            200 | 9735 | Contact Acquirer-Pick Up
+            200 | 9736 | Restricted Card-Pick Up
+            200 | 9737 | Call Acquirer Security-Pick Up
+            200 | 9738 | Allowable PIN Tries Exceeded
+            200 | 9739 | No CREDIT Account
+            200 | 9740 | Requested Function not Supported
+            200 | 9741 | Lost Card-Pick Up
+            200 | 9742 | No Universal Amount
+            200 | 9743 | Stolen Card-Pick Up
+            200 | 9744 | No Investment Account
+            200 | 9751 | Insufficient Funds
+            200 | 9752 | No Cheque Account
+            200 | 9753 | No Savings Account
+            200 | 9754 | Expired Card
+            200 | 9755 | Incorrect PIN
+            200 | 9756 | No Card Record
+            200 | 9757 | Trans. Not Permitted to Cardholder
+            200 | 9758 | Transaction not Permitted to Terminal
+            200 | 9759 | Suspected Fraud
+            200 | 9760 | Card Acceptor Contact Acquirer
+            200 | 9761 | Exceeds Withdrawal Amount Limits
+            200 | 9762 | Restricted Card
+            200 | 9763 | Security Violation
+            200 | 9764 | Original Amount Incorrect
+            200 | 9765 | Exceeds Withdrawal Frequency Limit
+            200 | 9766 | Card Acceptor Call Acquirer Security
+            200 | 9767 | Hard Capture-Pick Up Card at ATM
+            200 | 9768 | Response Received Too Late
+            200 | 9775 | Allowable PIN Tries Exceeded
+            200 | 9786 | ATM Malfunction
+            200 | 9787 | No Envelope Inserted
+            200 | 9788 | Unable to Dispense
+            200 | 9789 | Administration Error
+            200 | 9790 | Cut-off in Progress
+            200 | 9791 | Issuer or Switch is Inoperative
+            200 | 9792 | Financial Institution not Found
+            200 | 9793 | Trans Cannot be Completed
+            200 | 9794 | Duplicate Transmission
+            200 | 9795 | Reconcile Error
+            200 | 9796 | System Malfunction
+            200 | 9797 | Reconciliation Totals Reset
+            200 | 9798 | MAC Error
+            200 | 9799 | Reserved for National Use
+    ResponseCodeListForEndeavor:
+        x-THREEDS-ENDEAVOUR: M.
+        x-PSP-BAMBORA: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: string
+        title: Response code list mapping for Endeavor
+        description:  |
+            Note that this object is used for the error code mapping of Endeavor.
+            >
+            Updated at [2019-08-21]
+            >
+            **PG Response Code** |**Endeavor Response code**
+            :------|:------
+            9001  | 1,2,3,4,5,6
+            9200  | (enroll.avr/veres.status = N)
+            9201  | time out
+            9202  | 50,51  (enroll.avr/veres.status = U)
+            9203  | 52,53,54,56,57,98,99
+            9204  | (veres.status = A)
+    ResponseCodeListForBambora:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-PSP-BAMBORA: M.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: string
+        title: Response code list mapping for Bambora
+        description:  |
+            Note that this object is used for the error code mapping of Bambora.
+            >
+            Updated at [2019-08-20]
+            >
+            **PG Response Code** |**Bambora Response code**
+            :------|:------
+            9002 | 161
+            9101 | time out
+            9199 | 100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,150,151,152,153,154,155,159,160,161,162,180,181,182,183,184,190,191,192,200,201,500,519,599,997,998,999,1000,1001,1002,1003,1004,1005,1006,5043,5044,5045,5046,5047,5048,5049,5051,5052,5053,5054,5055,5056,5057,5058,5059
+            9701 | 01
+            9702 | 02
+            9703 | 03
+            9704 | 04
+            9705 | 05
+            9706 | 06
+            9707 | 07
+            9709 | 09
+            9710 | 10
+            9712 | 12
+            9713 | 13
+            9714 | 14
+            9715 | 15
+            9717 | 17
+            9718 | 18
+            9719 | 19
+            9720 | 20
+            9721 | 21
+            9722 | 22
+            9723 | 23
+            9724 | 24
+            9725 | 25
+            9726 | 26
+            9727 | 27
+            9728 | 28
+            9729 | 29
+            9730 | 30
+            9731 | 31
+            9732 | 32
+            9733 | 33
+            9734 | 34
+            9735 | 35
+            9736 | 36
+            9737 | 37
+            9738 | 38
+            9739 | 39
+            9740 | 40
+            9741 | 41
+            9742 | 42
+            9743 | 43
+            9744 | 44
+            9751 | 51
+            9752 | 52
+            9753 | 53
+            9754 | 54
+            9755 | 55
+            9756 | 56
+            9757 | 57
+            9758 | 58
+            9759 | 59
+            9760 | 60
+            9761 | 61
+            9762 | 62
+            9763 | 63
+            9764 | 64
+            9765 | 65
+            9766 | 66
+            9767 | 67
+            9768 | 68
+            9775 | 75
+            9786 | 86
+            9787 | 87
+            9788 | 88
+            9789 | 89
+            9790 | 90
+            9791 | 91
+            9792 | 92
+            9793 | 93
+            9794 | 94
+            9795 | 95
+            9796 | 96
+            9797 | 97
+            9798 | 98
+            9799 | 99
+    ResponseCodeListForSmartpay-Bureau-CNP:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-PSP-BAMBORA: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: M.
+        type: string
+        title: Response code list mapping for Smartpay
+        description:  |
+            Note that this object is used for the error code mapping of Smartpay.
+            >
+            Updated at [2019-08-20]
+            >
+            **PG Response Code** |**Smartpay-Bureau-CNP Response code**
+            :------|:------
+            9002 | WPAY-32
+            9101 | time out
+            9199 | others
+    ResponseCodeListForMada:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-PSP-BAMBORA: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: string
+        title: Response code list mapping for Mada
+        description:  |
+            Note that this object is used for the error code mapping of Mada.
+            >
+            Updated at [2020-03-17]
+            >
+            **PG Response Code** |**Mada Metadata Type**
+            :------|:------
+            0000 (SUCCESS) | 2001001/2001002
+            9001 (Invalid Request) | 4001001
+            9101 (PSP Not Available) | 50000009
+    Report_transactions:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-PSP-BAMBORA: M.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-MADA: NA.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: string
+        title: transaction report
+        description:  |
+            **Column Name** |**Description**
+            :------|:------
+            Account Number | The value of the field merchantDivision.
+            Merchant Number | The value of the field merchantSubDivision.
+            Date/Time | The value of the field timestamp.
+            Transaction Type | It has pre-defined values which are DEFERRED_PAYMENT,STANDARD_PAYMENT,REFUND,INTERNAL_REFUND.
+            Channel | The value of the field paymentChannel.
+            Amount | payment amount.
+            Result Code | The value of the field externalErrorCode.
+            Result Text | The value of the field externalErrorMessage.
+            User | The value of the field operatorId.
+            Card Type | The scheme of the card.
+            Masked Card Number | The card number in mask form. Only BIN and 1ast four digits of the card number are displayed.
+            BIN | The first 6 digits of the card number.
+            CC Expiry | The expiry date of the card number.
+            Token | The value of the field tokenReferenceID
+            Token Expiry | The expiry date of the token.
+            Customer ID | The value of the field consumerId.
+            Order ID | The value of the field invoiceId.
+            Store ID | The value of the field storeId.
+            Authorisation ID | The value of the field receipt.
+            XID | The value of the field XID.
+            ECI | The value of the field ECI.
+            Enrolled | The value of the field enrollmentStatus.
+            PaRes Status | The value of the field authStatus.
+            CAR | The CAR value returned by Bambora.
+            Payment Order ID | The value of the field walletTransactionId.
+            Transaction ID | The value of the field walletOrderId.
+            Transaction Status | It has pre-defined values which are SUCCESS,FAILED,PENDING,3DS_ABORTED.
+    DataFieldMapping_Mada:
+        x-THREEDS-ENDEAVOUR: NA.
+        x-THREEDS-DIMEBOX: NA.
+        x-PSP-BAMBORA: NA.
+        x-PSP-MADA: M.
+        x-PSP-SMARTPAY-BUREAU-CNP: NA.
+        type: string
+        title: DataFieldMapping_Mada
+        description:  |
+            ** PG field** |**Mada field**
+            :------|:------
+            PaymentData.tokenReferenceId|Pan,ExpiryDate,PanSequence (Note that ExpiryDate is not required for AVS and Purchase request)
+            PaymentData.currencyCode|Currency
+            PaymentData.amount|Amount
+            TerminalData.terminalId|TerminalId
+            EncData.track2|Track2
+            EncData.iCCRelatedData|EMV
+            TraceData.traceNumber|Trace
+            TraceData.referenceId|ReferenceId
+            TraceData.transmissionDateTime|TransmissionDateTime
+            TraceData.lastTxnDateTime|LocalDateTime
+            TraceData.firstTxnDateTime|CaptureDate
+            TraceData.originalReferenceId|OriginalReferenceId
+            TraceData.originalLastTxnDateTime|OriginalLocalDateTime
+            TraceData.originalTraceNumber|OriginalTrace
+            TraceData.originalTransmissionDateTime|ReconciliationDate
+            TransitData.modeType|Model
+            TransitData.modeIndicator|TransportationModeIndicator
+            MerchantData.merchantId|merchantId
+            MerchantData.merchantName|merchant.Name
+            MerchantData.merchantContact|merchant.contact
+            MerchantData.acquirerBin|TxnSrc
+            MerchantData.merchantCategoryCode|merchantType
+            MerchantData.merchantAddress.line1|merchant.address
+            MerchantData.merchantAddress.city|merchant.city
+            MerchantData.merchantAddress.state|merchant.state
+            MerchantData.merchantAddress.countryCode|merchant.country
+            MerchantData.merchantAddress.postalCode|merchant.zip
+            externalErrorCode|Metadata.Type
+            externalErrorMessage|Metadata.Text
+            transactionDetail.amount|Entity.Amount
+            transactionDetail.currencyCode|Entity.Currency
+            transactionDetail.panSuffix|Entity.PanSuffix
+            transactionDetail.paymentAccountReference|Entity.PAR
+            transactionDetail.referenceId|Entity.referenceId
+            transactionDetail.transactionResult|Entity.ResponseCode
+            transactionDetail.transactionType|Entity.ProcessingCode
+            transactionDetail.traceNumber|Entity.Trace
+            receipt|Entity.ApprovalCode
+            timestamp|Entity.ReconciliationDate
+            cardSchemeInfo|CardSchemeInfo
