@@ -5,7 +5,7 @@ export PATH=/flyway:$PATH
 cd /flyway
 
 ######### migrate command with configuration file
-flyway -configFiles=/flyway/conf/flyway-estore.conf migrate
+flyway -configFiles=/flyway/conf/flyway.conf migrate
 
 ######### info command
-flyway -configFiles=/flyway/conf/flyway-estore.conf  info
+flyway -configFiles=/flyway/conf/flyway.conf  info

@@ -1,36 +1,44 @@
 ARG DOCKER_REGISTRY
 ARG JAVA_BASE_IMAGE_TAG
 ARG ARTIFACT_NAME
-ARG FLYWAY_VERSION=7.3.2
+ARG FLYWAY_VERSION
 
-FROM java:8-jdk-alpine
+FROM ${JAVA_BASE_IMAGE_TAG} as java
+FROM flyway/flyway:${FLYWAY_VERSION} as flyway
+FROM postgres:10.4 as postgres
+ARG JAR_FILE
 
-WORKDIR /flyway
-RUN apk add --update openssl
-RUN apk update && apk add bash
-ARG STATIC_ARTIFACT_SOURCE=https://repo1.maven.org/maven2/org/flywaydb
+USER root
+####################################################
+########     JAVA                      #############
+####################################################
+COPY --from=java /opt/java/openjdk /opt/java/openjdk
 
-RUN wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/7.3.2/flyway-commandline-7.3.2.tar.gz  \
-  && tar -xzf flyway-commandline-7.3.2.tar.gz \
-  && mv flyway-7.3.2/* . \
-  && rm flyway-commandline-7.3.2.tar.gz
+####################################################
+########     Flyway configuration      #############
+####################################################
+COPY --from=flyway /flyway /flyway
 
-ADD flyway.conf /flyway/conf/flyway.conf
+ADD ${JAR_FILE} /flyway/jars/
+ADD flyway-estore.conf /flyway/conf/flyway-estore.conf
+RUN chown -R root:root /flyway
+RUN chmod +x /flyway/*
 
+#########################################################
+####### Postgres DB startup script ######################
+#########################################################
+ADD postgresql.conf /etc/postgresql/postgresql.conf
+ADD 01-schemas.sql /docker-entrypoint-initdb.d/
+ADD 02-run-flyway.sh /docker-entrypoint-initdb.d/
+ADD setup.sh /
+RUN chmod +x /setup.sh
+RUN chmod +x /setup.sh /docker-entrypoint-initdb.d/*.sh
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_DB=postgres
+ENV POSTGRES_PASSWORD=postgres
 
-# FROM postgres:10.4
-# ADD postgresql.conf /etc/postgresql/postgresql.conf
-# ADD 01-schemas.sql /docker-entrypoint-initdb.d/
-# ADD 02-run-flyway.sh /docker-entrypoint-initdb.d/
-# ADD setup.sh /
-# RUN chmod +x /setup.sh
-# RUN chmod +x /setup.sh /docker-entrypoint-initdb.d/*.sh
-# ENV POSTGRES_USER=postgres
-# ENV POSTGRES_DB=postgres
-# ENV POSTGRES_PASSWORD=postgres
-#
-# USER postgres
-# RUN /setup.sh postgres
+USER postgres
+RUN /setup.sh postgres
 
 
 

@@ -1,3 +1,5 @@
+SET SCHEMA '${ESTORE_SCHEMA}';
+
 create table acs_user (id bigint not null, created_date timestamp, email varchar(255), is_active boolean not null, last_login_date timestamp, mobile varchar(255), name varchar(255), password varchar(255), role varchar(255), username varchar(255), primary key (id));
 create table acs_user_addresses (user_id bigint not null, addresses_id bigint not null, primary key (user_id, addresses_id));
 create table address (id bigint not null, city varchar(255), pin_code varchar(255), state varchar(255), street varchar(255), primary key (id));

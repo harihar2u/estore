@@ -24,8 +24,9 @@
         <junit-jupiter.version>5.3.2</junit-jupiter.version>
         <mockito.version>2.24.0</mockito.version>
 
+        <flyway.version>7.11.1</flyway.version>
         <docker.registry>docker.io/harihar2u/project-demo</docker.registry>
-        <java.base.images.tag>java:8-jdk-alpine</java.base.images.tag>
+        <java.base.images.tag>adoptopenjdk:11-jre-hotspot</java.base.images.tag>
         <docker.skip>true</docker.skip>
 
     </properties>
@@ -77,6 +78,17 @@
             <version>42.2.9</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP-java6</artifactId>
+            <version>2.2.5</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901.jdbc4</version>
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -112,8 +124,8 @@
         <module>estore-rest</module>
         <module>estore-test</module>
         <module>estore-database</module>
-        <module>estore-flyway</module>
-        <module>estore-postgres</module>
+        <module>estore-db-migration</module>
+        <module>estore-db-postgres</module>
     </modules>
 
     <profiles>
@@ -148,7 +160,9 @@
                                     <JAVA_BASE_IMAGE_TAG>${java.base.images.tag}</JAVA_BASE_IMAGE_TAG>
                                     <FLYWAY_VERSION>${flyway.version}</FLYWAY_VERSION>
                                     <ARTIFACT_NAME>${project.build.finalName}</ARTIFACT_NAME>
+                                    <JAR_FILE>target/*.jar</JAR_FILE>
                                 </buildArgs>
+                                <pullNewerImage>true</pullNewerImage>
                                 <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
                                 <googleContainerRegistryEnabled>false</googleContainerRegistryEnabled>
                                 <skip>${docker.skip}</skip>

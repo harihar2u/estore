@@ -3,7 +3,8 @@ ARG JAVA_BASE_IMAGE_TAG
 ARG ARTIFACT_NAME
 
 FROM ${JAVA_BASE_IMAGE_TAG}
-# ADD target/${ARTIFACT_NAME}.jar /opt/app/java/app.jar
+ARG JAR_FILE
+#ADD target/${JAR_FILE}.jar /opt/app/java/app.jar
 ADD target/estore-auth-rest-0.0.1-SNAPSHOT.jar /opt/app/java/app.jar
 
 EXPOSE 8083

@@ -26,7 +26,7 @@
     <logger name="com.online.estore" level="INFO">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.springframework" level="WARN">
+    <logger name="org.springframework" level="DEBUG">
             <appender-ref ref="STDOUT"/>
         </logger>
     <logger name="org.apache.http.wire" level="WARN">
