@@ -2,7 +2,7 @@ server.port: 8082
 spring.data.rest.base-path: /api
 springdoc.packages-to-scan: com.online.estore.api.controller
 
-spring.profiles.active: postgres
+#spring.profiles.active: postgres
 
 ---
 spring:
