@@ -48,7 +48,7 @@
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <configuration>
-                    <repository>${docker.registry}/estore/${project.artifactId}</repository>
+                    <repository>${docker.registry}/${project.artifactId}</repository>
                 </configuration>
             </plugin>
         </plugins>

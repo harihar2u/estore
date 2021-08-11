@@ -25,7 +25,7 @@
         <mockito.version>2.24.0</mockito.version>
 
         <flyway.version>7.11.1</flyway.version>
-        <docker.registry>docker.io/harihar2u/project-demo</docker.registry>
+        <docker.registry>harihar2u</docker.registry>
         <java.base.images.tag>adoptopenjdk:11-jre-hotspot</java.base.images.tag>
         <docker.skip>true</docker.skip>
 
@@ -149,19 +149,23 @@
                                     <id>default</id>
                                     <goals>
                                         <goal>build</goal>
+                                        <goal>tag</goal>
                                         <goal>push</goal>
                                     </goals>
                                 </execution>
                             </executions>
                             <configuration>
                                 <tag>${project.version}</tag>
+                                <username>harihar2u</username>
+                                <password>2621d649-09d8-4e2a-98fb-63c4ea452dbb</password>
                                 <buildArgs>
                                     <DOCKER_REGISTORY>${docker.registry}</DOCKER_REGISTORY>
                                     <JAVA_BASE_IMAGE_TAG>${java.base.images.tag}</JAVA_BASE_IMAGE_TAG>
                                     <FLYWAY_VERSION>${flyway.version}</FLYWAY_VERSION>
                                     <ARTIFACT_NAME>${project.build.finalName}</ARTIFACT_NAME>
-                                    <JAR_FILE>target/*.jar</JAR_FILE>
+                                    <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
                                 </buildArgs>
+                                <repository>${docker.registry}:${project.artifactId}</repository>
                                 <pullNewerImage>true</pullNewerImage>
                                 <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
                                 <googleContainerRegistryEnabled>false</googleContainerRegistryEnabled>

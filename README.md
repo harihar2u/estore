@@ -16,12 +16,12 @@ docker rm -f $(docker ps -aq)
 ###### Application startup
 
 ````
-docker run -p 5432:5432  harihar2u/project-demo/estore/estore-db-postgres:0.0.1-SNAPSHOT
-docker run harihar2u/project-demo/estore/estore-db-migration:0.0.1-SNAPSHOT \
+docker run -p 5432:5432  harihar2u/estore-db-postgres:0.0.1-SNAPSHOT
+docker run harihar2u/estore-db-migration:0.0.1-SNAPSHOT \
 -configFiles=/flyway/conf/flyway-db-estore.conf migrate
 
-docker run -p 8082:8082 -e SPRING_PROFILES_ACTIVE=postgres harihar2u/project-demo/estore/estore-rest:0.0.1-SNAPSHOT
-docker run -p 8083:8083 -e SPRING_PROFILES_ACTIVE=postgres harihar2u/project-demo/estore/estore-auth-rest:0.0.1-SNAPSHOT
+docker run -p 8082:8082 -e SPRING_PROFILES_ACTIVE=postgres harihar2u/estore-rest:0.0.1-SNAPSHOT
+docker run -p 8083:8083 -e SPRING_PROFILES_ACTIVE=postgres harihar2u/estore-auth-rest:0.0.1-SNAPSHOT
 ````
 
 ###### Open API and Swagger UI
