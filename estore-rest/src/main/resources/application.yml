@@ -1,8 +1,7 @@
 server.port: 8082
 spring.data.rest.base-path: /api
 springdoc.packages-to-scan: com.online.estore.api.controller
-
-#spring.profiles.active: postgres
+spring.profiles.active: postgres-docker
 
 ---
 spring:
@@ -25,7 +24,7 @@ h2.console.enabled: true
 
 ---
 spring:
-  profile: postgres
+  profile: postgres-docker
   jpa:
     database: POSTGRESQL
     show-sql: true
@@ -33,6 +32,7 @@ spring:
     hibernate.validationQuery: select 1
     properties.hibernate.globally_quoted_identifiers: false
   datasource:
+#    url: jdbc:postgresql://localhost:5432/postgres
     url: jdbc:postgresql://host.docker.internal:5432/postgres
     driver-class-name: org.postgresql.Driver
     username: postgres
