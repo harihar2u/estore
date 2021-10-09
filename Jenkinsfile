@@ -20,13 +20,7 @@ stages {
              // Run Maven on a Unix agent.
             sh "mvn clean install -DskipTests"
         }
-    } 
-
-      post {
-            success {
-            //   junit '**/target/surefire-reports/TEST-*.xml'
-               archiveArtifacts 'target/*.jar'
-            }
-         }
+    }
+  
    }
 }
