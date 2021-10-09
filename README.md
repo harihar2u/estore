@@ -5,8 +5,8 @@ mvn install -DskipTests -Pdocker
 docker login --username ********
 2621d649-09d8-4e2a-98fb-63c4ea452dbb
 
-docker image tag harihar2u/estore-rest:0.0.1-SNAPSHOT harihar2u/estore-rest:0.0.1-SNAPSHOT
-docker image push harihar2u/estore-rest:0.0.1-SNAPSHOT
+docker image tag harihar2u/estore-rest:0.0.1-SNAPSHOT harihar2u/estore-rest:latest
+docker image push harihar2u/estore-rest:latest
 ````
 ###### Docker command
 ```
@@ -52,9 +52,15 @@ kubectl delete all --all
 ````
 minikube addons enable ingress
 kubectl get pods -n ingress-nginx
+
+#update hostname and cluster ip
 sudo vim /etc/hosts
 
-ingress resource need to be enabled
+#ingress resource
+https://github.com/harihar2u/devops-demo/kubernetes/estore-ws-ingress.yaml
+
+http://minikube-estore.info/
+http://minikube-estore.info/swagger-ui
 ````
 
 ###### Spring boot application with persistance storage.

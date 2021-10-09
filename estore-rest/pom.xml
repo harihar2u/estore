@@ -56,11 +56,6 @@
             <artifactId>estore-repository</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.online</groupId>
-            <artifactId>estore-swagger</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
 
